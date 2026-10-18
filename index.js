@@ -1,0 +1,6 @@
+import{OAuth2Client,GoogleAuth}from'google-auth-library';import{createApp}from'./app.js';import{validateMembers,dashboard,ranges}from'./data.js';
+const {GOOGLE_CLIENT_ID,SPREADSHEET_ID,FRONTEND_ORIGIN,PORT=8787}=process.env;
+if(!GOOGLE_CLIENT_ID||!SPREADSHEET_ID||!FRONTEND_ORIGIN)throw Error('Configure Google client ID, spreadsheet ID and exact frontend origin');
+const members=validateMembers(JSON.parse(process.env.MEMBER_MAP||'{}'));const oidc=new OAuth2Client(GOOGLE_CLIENT_ID);const sheets=new GoogleAuth({scopes:['https://www.googleapis.com/auth/spreadsheets.readonly']});
+const app=createApp({origin:FRONTEND_ORIGIN,verify:async token=>{const ticket=await oidc.verifyIdToken({idToken:token,audience:GOOGLE_CLIENT_ID});const p=ticket.getPayload();return p?.sub&&p.email_verified&&Object.hasOwn(members,p.sub)?p.sub:null},load:async subject=>{const client=await sheets.getClient();const query=new URLSearchParams({valueRenderOption:'FORMATTED_VALUE'});ranges.forEach(r=>query.append('ranges',r));const response=await client.request({url:`https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(SPREADSHEET_ID)}/values:batchGet?${query}`,timeout:10000});return dashboard(response.data.valueRanges,members,subject)}});
+app.listen(PORT,'0.0.0.0',()=>console.log(`Read-only API listening on ${PORT}`));

@@ -1,0 +1,1 @@
+export function ranking(data){return data.players.map(p=>{const scores=data.scores.filter(s=>s.playerId===p.id).map(s=>s.score);return {...p,games:scores.length,average:scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*10)/10:null,best:scores.length?Math.max(...scores):null};}).sort((a,b)=>(b.average??-1)-(a.average??-1));}

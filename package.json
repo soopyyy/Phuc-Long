@@ -1,0 +1,1 @@
+{"name":"phuc-long","version":"0.1.0","private":true,"type":"module","scripts":{"dev":"vite --host 127.0.0.1","build":"vite build","server":"node --env-file=.env server/index.js","test":"node --test tests/*.test.js"},"dependencies":{"react":"^19.2.0","react-dom":"^19.2.0","express":"^5.1.0","google-auth-library":"^10.3.0"},"devDependencies":{"vite":"^7.1.0"}}
